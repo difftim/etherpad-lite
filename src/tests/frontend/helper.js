@@ -11,11 +11,9 @@ const helper = {};
       jsLibraries.jquery,
       jsLibraries.sendkeys,
     ] = await Promise.all([
-      $.get('../../static/js/vendors/jquery.js'),
-      $.get('lib/sendkeys.js'),
+      $.get('../../static/js/vendors/jquery.js', null, null, 'text'),
+      $.get('lib/sendkeys.js', null, null, 'text'),
     ]);
-    // make sure we don't override existing jquery
-    jsLibraries.jquery = `if (typeof $ === 'undefined') {\n${jsLibraries.jquery}\n}`;
   };
 
   helper.randomString = (len) => {
@@ -36,12 +34,12 @@ const helper = {};
     const win = $iframe[0].contentWindow;
     const doc = win.document;
 
-    // IE 8+9 Hack to make eval appear
-    // https://stackoverflow.com/q/2720444
-    win.execScript && win.execScript('null');
-
-    win.eval(jsLibraries.jquery);
-    win.eval(jsLibraries.sendkeys);
+    if (!win.$) {
+      win.eval(jsLibraries.jquery);
+    }
+    if (!win.bililiteRange && win.name !== 'ace_outer') {
+      win.eval(jsLibraries.sendkeys);
+    }
 
     win.$.window = win;
     win.$.document = doc;
